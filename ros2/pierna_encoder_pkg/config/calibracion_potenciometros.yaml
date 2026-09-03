@@ -1,0 +1,23 @@
+# Calibracion de nuestro potenciometro. Formato compatible con el
+# calibracion_node.py del repo del grupo (tps-percepcion-robotica),
+# reusado sin modificaciones.
+#
+# offset_zero = raw_min: el joint arranca en 0 rad cuando el cursor
+# esta en el extremo bajo del recorrido util.
+#
+# Medido 2026-09-02/03 con mediana de 10 muestras del ADC. raw_max
+# ajustado el 2026-09-03 tras graficar una captura continua: se
+# detecto una zona inestable de la pista resistiva en aprox.
+# raw 2400-3150 (no en el limite fisico), incluyendo un evento de
+# saturacion a raw=4095 que sobrevivio al filtro de mediana (indica
+# perdida de contacto sostenida, no ruido electrico puntual).
+# raw_max=3150 usa la meseta estable observada mas alla de esa zona.
+# La zona sigue dentro del rango util: al atravesarla, el joint puede
+# mostrar un salto transitorio en RViz. Limitacion conocida, no
+# corregida por hardware.
+
+pierna_izq:
+  offset_zero: 560
+  raw_min: 560
+  raw_max: 3150
+  rango_grados: 300.0
