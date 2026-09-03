@@ -18,7 +18,7 @@
 
 potenciometro:
   raw_min: 560
-  raw_max: 3000
+  raw_max: 3150
   rango_grados: 300.0
   signo: 1   # raw aumenta al girar en sentido horario (visto por el operador)
 
@@ -29,3 +29,14 @@ as5600:
   # que hace el repo del grupo con su rodilla).
   offset_raw: 0
   signo: 1
+
+# ACTUALIZACION 2026-09-03, tras graficar una captura continua:
+# La inestabilidad NO esta en el limite fisico -- esta en una zona
+# localizada de la pista, aprox. raw 2400-3150 (grados calibrados
+# ~220-320), incluyendo un evento de saturacion a raw=4095 que
+# sobrevivio al filtro de mediana de 10 (indica perdida de contacto
+# fisico sostenida, no ruido electrico puntual). raw_max se corrigio
+# de 3000 a 3150 usando la meseta estable observada MAS ALLA de esa
+# zona defectuosa. La zona sigue existiendo dentro del rango util:
+# al pasar por ahi, el joint puede mostrar un salto visible transitorio
+# en RViz. Limitacion conocida, no corregida por hardware.
