@@ -1,4 +1,5 @@
 #include "uros.h"
+#include "esp_wifi.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -59,9 +60,9 @@ static void timer_callback(rcl_timer_t *timer, int64_t last_call_time)
        valor recibido. Preferible a publicar un dato inventado. */
 
     as5600_muestra_t a;
-    esp_err_t err_as5600 = as5600_leer(&a);
+    // esp_err_t err_as5600 = as5600_leer(&a);
 
-    msg_encoder_detectado.data = (err_as5600 == ESP_OK) && a.md;
+    msg_encoder_detectado.data = false;
     RCSOFTCHECK(rcl_publish(&pub_encoder_detectado, &msg_encoder_detectado, NULL));
 
     if (err_as5600 == ESP_OK) {
@@ -142,6 +143,7 @@ void uros_iniciar(void)
     /* Conecta el WiFi usando el SSID/password que cargaste en
        menuconfig. Bloquea hasta conectar. */
     ESP_ERROR_CHECK(uros_network_interface_initialize());
+    esp_wifi_set_ps(WIFI_PS_NONE);
 #endif
     xTaskCreate(micro_ros_task,
                 "uros_task",

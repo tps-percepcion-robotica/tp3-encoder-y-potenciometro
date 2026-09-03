@@ -17,7 +17,13 @@
 # corregida por hardware.
 
 pierna_izq:
-  offset_zero: 560
+  offset_zero: 1855
   raw_min: 560
   raw_max: 3150
   rango_grados: 300.0
+
+pierna_encoder:
+  offset_zero: 0
+  raw_min: 0
+  raw_max: 4095
+  rango_grados: 360.0

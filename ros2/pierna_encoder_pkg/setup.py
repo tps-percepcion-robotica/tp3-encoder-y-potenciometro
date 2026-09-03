@@ -27,6 +27,7 @@ setup(
     entry_points={
         'console_scripts': [
             'calibracion_node = pierna_encoder_pkg.calibracion_node:main',
+            'calibracion_node_encoder = pierna_encoder_pkg.calibracion_node_encoder:main',
         ],
     },
 )
