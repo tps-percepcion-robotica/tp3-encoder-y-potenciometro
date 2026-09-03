@@ -1,0 +1,31 @@
+# Calibracion del potenciometro (joint aun sin asignar -- se define
+# junto con el URDF en el proximo paso).
+#
+# Metodo: mediana de 10 lecturas del ADC (raw, 0-4095), tomadas cerca
+# de cada tope mecanico, NO en el limite fisico absoluto.
+#
+# Motivo de no usar el limite absoluto: se observo, en los ultimos
+# grados de cada extremo, inestabilidad de lectura -- saturacion
+# ocasional a raw=4095 y deriva sostenida en el tiempo mientras el
+# potenciometro se sostenia "contra el tope". Hipotesis sin confirmar:
+# backlash mecanico del eje o degradacion de la pista resistiva en el
+# extremo. No se investigo mas a fondo por decision de avanzar; queda
+# como limitacion documentada, no como bug resuelto.
+#
+# Fecha de medicion: 2026-09-02
+# Hardware: Rs=20.10k, R_pote medido=9.74k, Rb=2.02k,
+#           ganancia LM358-B medida ~1.913 (no 2.0 exacto)
+
+potenciometro:
+  raw_min: 560
+  raw_max: 3000
+  rango_grados: 300.0
+  signo: 1   # raw aumenta al girar en sentido horario (visto por el operador)
+
+as5600:
+  # Sensor aun no conectado fisicamente. Placeholder: se mide offset,
+  # signo y se confirma wrap cuando este instalado. Hasta entonces el
+  # joint correspondiente permanece en un valor fijo en RViz (igual
+  # que hace el repo del grupo con su rodilla).
+  offset_raw: 0
+  signo: 1

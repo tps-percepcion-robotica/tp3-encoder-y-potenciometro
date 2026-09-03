@@ -11,9 +11,10 @@ static const char *TAG = "as5600";
 #define PIN_SDA         21
 #define PIN_SCL         22
 #define AS5600_ADDR     0x36
-#define I2C_FREQ_HZ     100000          // 100 kHz, no 400 kHz
+#define I2C_FREQ_HZ     100000
 #define I2C_TIMEOUT_MS  100
 
+#define REG_ZPOS        0x01
 #define REG_STATUS      0x0B
 #define REG_RAW_ANGLE   0x0C
 #define REG_ANGLE       0x0E
@@ -47,6 +48,28 @@ static esp_err_t leer_u12(uint8_t reg, uint16_t *valor)
     }
     *valor = ((uint16_t)(buf[0] & 0x0F) << 8) | buf[1];
     return ESP_OK;
+}
+
+/* Escribe un valor de 12 bits en dos registros consecutivos.
+   El chip auto-incrementa: mandando [reg, alto, bajo] se escriben
+   reg y reg+1 en una sola transaccion. */
+static esp_err_t escribir_u12(uint8_t reg, uint16_t valor)
+{
+    uint8_t buf[3] = {
+        reg,
+        (uint8_t)((valor >> 8) & 0x0F),
+        (uint8_t)(valor & 0xFF)
+    };
+    esp_err_t err = ESP_FAIL;
+    for (int intento = 0; intento < 3; intento++) {
+        err = i2c_master_transmit(s_dev, buf, 3, I2C_TIMEOUT_MS);
+        if (err == ESP_OK) {
+            vTaskDelay(pdMS_TO_TICKS(5));   // el chip necesita asentar el valor
+            return ESP_OK;
+        }
+        vTaskDelay(pdMS_TO_TICKS(2));
+    }
+    return err;
 }
 
 esp_err_t as5600_init(void)
@@ -123,4 +146,38 @@ esp_err_t as5600_leer(as5600_muestra_t *m)
     m->grados     = m->angle     * (360.0f / CUENTAS_POR_VUELTA);
 
     return ESP_OK;
+}
+
+/* Toma la posicion actual del iman y la graba como cero.
+   A partir de aca ANGLE = (RAW_ANGLE - ZPOS) mod 4096. */
+esp_err_t as5600_setear_cero(uint16_t *zpos_escrito)
+{
+    uint16_t raw;
+    esp_err_t err = leer_u12(REG_RAW_ANGLE, &raw);
+    if (err != ESP_OK) {
+        return err;
+    }
+
+    err = escribir_u12(REG_ZPOS, raw);
+    if (err != ESP_OK) {
+        return err;
+    }
+
+    if (zpos_escrito != NULL) {
+        *zpos_escrito = raw;
+    }
+    ESP_LOGI(TAG, "ZPOS escrito: %u cuentas (%.3f deg)",
+             raw, raw * (360.0f / CUENTAS_POR_VUELTA));
+    return ESP_OK;
+}
+
+esp_err_t as5600_leer_cero(uint16_t *zpos)
+{
+    return leer_u12(REG_ZPOS, zpos);
+}
+
+esp_err_t as5600_reset_cero(void)
+{
+    ESP_LOGI(TAG, "Reseteando ZPOS a 0");
+    return escribir_u12(REG_ZPOS, 0);
 }

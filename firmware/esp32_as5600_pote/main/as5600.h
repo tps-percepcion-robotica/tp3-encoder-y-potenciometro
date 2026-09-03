@@ -20,3 +20,8 @@ typedef struct {
 esp_err_t as5600_init(void);
 esp_err_t as5600_leer(as5600_muestra_t *m);
 void      as5600_escanear_bus(void);
+
+/* Calibracion del cero (registro ZPOS, volatil: se pierde al apagar) */
+esp_err_t as5600_setear_cero(uint16_t *zpos_escrito);
+esp_err_t as5600_leer_cero(uint16_t *zpos);
+esp_err_t as5600_reset_cero(void);
